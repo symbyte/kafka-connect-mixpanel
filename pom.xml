@@ -4,11 +4,27 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.apache.kafka</groupId>
+    <groupId>io.oseberg.kafka</groupId>
     <artifactId>connect-mixpanel</artifactId>
     <version>0.2.0</version>
 
+    <distributionManagement>
+      <repository>
+        <id>oseberg-maven-repo</id>
+        <url>scpexe://dev-staging1.oseberg.io/var/www/mavenrepo</url>
+      </repository>
+    </distributionManagement>
+
     <build>
+
+        <extensions>
+          <!-- Enabling the use of SSH -->
+          <extension>
+            <groupId>org.apache.maven.wagon</groupId>
+             <artifactId>wagon-ssh-external</artifactId>
+             <version>1.0-beta-6</version>
+          </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

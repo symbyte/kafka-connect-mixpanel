@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>oseberg-maven-repo</id>
+      <username>maven</username>
+      <privateKey>${user.home}/.ssh/id_rsa</privateKey>
+      <filePermissions>664</filePermissions>
+      <directoryPermissions>775</directoryPermissions>
+       <configuration>
+         <sshExecutable>ssh</sshExecutable>
+         <scpExecutable>scp</scpExecutable>
+       </configuration>
+    </server>
+  </servers>
+</settings>

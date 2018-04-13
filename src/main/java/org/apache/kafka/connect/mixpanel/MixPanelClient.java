@@ -64,6 +64,9 @@ public class MixPanelClient implements Runnable {
 
                     }
                 }
+                System.out.println("Something went wrong with the request to the mixpanel api:");
+                System.out.println(response.getStatus());
+                System.out.println(response.getBody());
                 // need to figure out a way to communicate errors back to the Task
                 done.set(true);
 

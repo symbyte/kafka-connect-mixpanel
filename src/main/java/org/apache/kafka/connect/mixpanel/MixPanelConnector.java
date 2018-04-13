@@ -4,6 +4,9 @@ import org.apache.kafka.common.utils.AppInfoParser;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceConnector;
+import org.apache.kafka.common.config.Config;
+import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.common.config.ConfigValue;
 
 import java.util.*;
 
@@ -22,6 +25,20 @@ public class MixPanelConnector extends SourceConnector {
     private String api_key;
     private String api_secret;
     private String from_date;
+
+    private static final ConfigDef CONFIG_DEF = new ConfigDef();
+
+    @Override
+    public ConfigDef config() {
+      return CONFIG_DEF;
+    }
+
+    @Override
+    public Config validate(Map<String, String> connectorConfigs) {
+        ConfigDef configDef = config();
+        List<ConfigValue> configValues = configDef.validate(connectorConfigs);
+        return new Config(configValues);
+    }
 
     @Override
     public String version() {

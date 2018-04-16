@@ -21,6 +21,8 @@ public class MixPanelTask extends SourceTask {
     private static final String API_KEY = "api_key";
     private static final String API_SECRET = "api_secret";
     private static final String FROM_DATE = "from_date";
+    private static final String POLL_FREQUENCY = "poll_frequency";
+    private static final String UPDATE_WINDOW = "update_window";
     private static final String ENDPOINT = "https://data.mixpanel.com/api/2.0/export/";
     private static final String SERVICE_FIELD = "service";
     private static final String POSITION_FIELD = "position";
@@ -30,6 +32,8 @@ public class MixPanelTask extends SourceTask {
     private String api_secret;
     private String from_date;
     private String to_date;
+    private int poll_frequency;
+    private int update_window;
     private String latestDate;
     final AtomicBoolean done = new AtomicBoolean(false);
 
@@ -47,13 +51,14 @@ public class MixPanelTask extends SourceTask {
      * with the client thread.
      */
     @Override
-    public void start(Map<String, String> map) {
-        topic = map.get(TOPIC_NAME);
-        api_key = map.get(API_KEY);
-        api_secret = map.get(API_SECRET);
-        from_date = map.get(FROM_DATE);
+    public void start(Map<String, String> configMap) {
+        topic = configMap.get(TOPIC_NAME);
+        api_key = configMap.get(API_KEY);
+        api_secret = configMap.get(API_SECRET);
+        poll_frequency = Integer.parseInt(configMap.get(POLL_FREQUENCY));
+        update_window = Integer.parseInt(configMap.get(UPDATE_WINDOW));
         to_date = DateUtils.getCurrentDate();
-        latestDate = getStoredDate();
+        latestDate = null;
         msgs = new LinkedBlockingQueue<>(1000);
         executor = Executors.newSingleThreadExecutor();
     }
@@ -83,20 +88,18 @@ public class MixPanelTask extends SourceTask {
      */
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
+        // don't sleep on the first run
+        if (latestDate != null) {
+            TimeUnit.HOURS.sleep(poll_frequency);
+        }
 
-       while(true){
-           if(latestDate == null){
-               this.to_date = DateUtils.getCurrentDate();
-               break;
-           }else if(DateUtils.compare(latestDate, DateUtils.getCurrentDate()) >= 0){
-               TimeUnit.HOURS.sleep(1);
-           }else if(DateUtils.compare(latestDate, DateUtils.getCurrentDate()) < 0){
-               from_date = latestDate;
-               to_date = DateUtils.addOneDay(from_date);
-               break;
-           }
-       }
+        this.to_date = DateUtils.getCurrentDate();
+        this.from_date = DateUtils.subtractDays(this.to_date, update_window);
+        latestDate = this.to_date;
+
         try {
+            System.out.println("\n\n\nsending mixpanel request\n\n\n");
+            System.out.println("Date range: " + this.from_date + " - " + this.to_date);
 
             final ArrayList<SourceRecord> records = new ArrayList<>();
             int s = toIntExact(new Date().getTime() / 1000 + 3600);

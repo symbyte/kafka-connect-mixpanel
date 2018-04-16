@@ -28,7 +28,8 @@ public class MixPanelSourceConnectorTest {
         sourceProperties.put("topic", "mixpanelData");
         sourceProperties.put("api_key", "key123");
         sourceProperties.put("api_secret", "secret123");
-        sourceProperties.put("from_date", "2016-03-17");
+        sourceProperties.put("update_window", "1");
+        sourceProperties.put("poll_frequency", "2");
 
     }
 
@@ -41,7 +42,8 @@ public class MixPanelSourceConnectorTest {
         Assert.assertEquals("mixpanelData", taskConfigs.get(0).get("topic"));
         Assert.assertEquals("key123", taskConfigs.get(0).get("api_key"));
         Assert.assertEquals("secret123", taskConfigs.get(0).get("api_secret"));
-        Assert.assertEquals("2016-03-17", taskConfigs.get(0).get("from_date"));
+        Assert.assertEquals("1", taskConfigs.get(0).get("update_window"));
+        Assert.assertEquals("2", taskConfigs.get(0).get("poll_frequency"));
         PowerMock.verifyAll();
     }
     //We just want to check that even if we ask for the creation of multiple tasks, we'll get just one config back

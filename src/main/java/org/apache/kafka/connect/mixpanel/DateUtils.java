@@ -59,8 +59,17 @@ public class DateUtils {
     }
 
     public static String addOneDay(String date){
+      return DateUtils.addDays(date, 1);
+    }
+
+    public static String addDays(String date, int days) {
         DateTime dateC = DateTime.parse(date);
-        return formatter.print(dateC.plusDays(1));
+        return formatter.print(dateC.plusDays(days));
+    }
+
+    public static String subtractDays(String date, int days) {
+        DateTime dateC = DateTime.parse(date);
+        return formatter.print(dateC.minusDays(days));
     }
 
     public static int compare(String d1, String d2){

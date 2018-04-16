@@ -19,12 +19,20 @@ public class MixPanelConnector extends SourceConnector {
     private static final String TOPIC_NAME = "topic";
     private static final String API_KEY = "api_key";
     private static final String API_SECRET = "api_secret";
-    private static final String FROM_DATE = "from_date";
+    private static final String POLL_FREQUENCY = "poll_frequency";
+    private static final String UPDATE_WINDOW = "update_window";
 
     private String topic;
     private String api_key;
     private String api_secret;
-    private String from_date;
+    private String poll_frequency;
+    private String update_window;
+
+    private static final ConnectException invalidPollFrequencyException =
+      new ConnectException("poll_frequency must be a valid integer greater than 0");
+
+    private static final ConnectException invalidUpdateWindowException =
+      new ConnectException("update_window must be a valid integer greater than 0");
 
     private static final ConfigDef CONFIG_DEF = new ConfigDef();
 
@@ -54,7 +62,6 @@ public class MixPanelConnector extends SourceConnector {
         topic = map.get(TOPIC_NAME);
         api_key = map.get(API_KEY);
         api_secret = map.get(API_SECRET);
-        from_date = map.get(FROM_DATE);
 
         if (topic == null || topic.isEmpty())
             throw new ConnectException("MixPanelConnector configuration must include 'topic' setting");
@@ -64,8 +71,27 @@ public class MixPanelConnector extends SourceConnector {
             throw new ConnectException("MixPanelConnector configuration must include 'api key' setting");
         if(api_secret == null || api_secret.isEmpty())
             throw new ConnectException("MixPanelConnector configuration must include 'api secret' setting");
-        if( from_date != null && !from_date.isEmpty() && !from_date.matches(DateUtils.dateRegExFormat))
-            throw new ConnectException("MixPanelConnector requires dates of format yyyy-mm-dd for the from_date field");
+        try {
+          poll_frequency = map.get(POLL_FREQUENCY);
+          int poll_frequency_int = Integer.parseInt(poll_frequency);
+
+          if (poll_frequency_int <= 0) {
+            throw MixPanelConnector.invalidPollFrequencyException;
+          }
+        } catch (NumberFormatException e) {
+          throw MixPanelConnector.invalidPollFrequencyException;
+        }
+
+        try {
+          update_window = map.get(UPDATE_WINDOW);
+          int update_window_int = Integer.parseInt(update_window);
+
+          if(update_window_int <= 0) {
+            throw MixPanelConnector.invalidUpdateWindowException;
+          }
+        } catch (NumberFormatException e) {
+          throw MixPanelConnector.invalidUpdateWindowException;
+        }
     }
 
     /**
@@ -84,7 +110,8 @@ public class MixPanelConnector extends SourceConnector {
             config.put(TOPIC_NAME, topic);
             config.put(API_KEY, api_key);
             config.put(API_SECRET, api_secret);
-            config.put(FROM_DATE, from_date);
+            config.put(POLL_FREQUENCY, poll_frequency);
+            config.put(UPDATE_WINDOW, update_window);
             configs.add(config);
 
         return configs;

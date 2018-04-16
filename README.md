@@ -16,7 +16,8 @@ connector.class=org.apache.kafka.connect.mixpanel.MixPanelConnector
 tasks.max=1
 api_key = YOUR_MIXPANEL_API_KEY
 api_secret = YOUR_MIXPANEL_SECRET_KEY
-from_date = 2016-02-01
+poll_frequency=2
+update_window=1
 topic=mixp
 ```
 * **name**: name of the connector.
@@ -24,8 +25,11 @@ topic=mixp
 * **tasks.max**: maximum number of tasks to create. Even if you put a number greater than one here it will be ignored by the implementation.
 * **api_key**: your API key for the project from which you want to pull data from.
 * **api_secret**: your API secret for the project from which you want to pull data from.
-* **from_date**: Some date in the past from when you would like to start pulling data.
+* **poll_frequency**: how often to ask the mixpanel api for more data (in hours)
+* **update_window**: how far back to request data from the current date (in days)
 * **topic**: the name of the Kafka topic where the data will be pushed.
+
+Due to limitations of the API coupled with the desire to have the most current data possible, it is necessary to use this gradually-expanding-window approach when polling the mixpanel api. This approach will create **many duplicate events** depending on how you set the `poll_frequency` and `update_window`. Consumers of the topic being published to should have a strategy for dealing with this.
 
 
 Made with &#9829; from the [Blendo](https://www.blendo.co/) team
